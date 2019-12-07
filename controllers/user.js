@@ -1,6 +1,8 @@
 const {models} = require('../model');
 const Joi = require('joi');
 
+//TODO: Make a subscription class for processing api responses from one place
+
 /**
  * function: addUser
  * task: Saving a new User/Customer to database with proper validation

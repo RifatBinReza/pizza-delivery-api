@@ -1,3 +1,4 @@
+// TODO: Address should be on another table where we can save Street address, Area, City etc separately
 module.exports = (Sequelize, DataTypes) => {
   const User = Sequelize.define(
     "user",
