@@ -217,10 +217,23 @@ exports.filterOrder = async (req, res)=>{
         where: where
       })
       if(orders.length>0){
+        let payload = []
+        for await (let order of orders){
+          let userData = await order.getUser()
+          // Only send required data for user
+          let customer = {
+            first_name: userData.first_name,
+            last_name: userData.last_name,
+            address: userData.address,
+          }
+          order.dataValues.customer = customer
+          payload.push(order)
+        }
+        
         res.status(200).json({
           status: "success",
           message: "Found orders",
-          data: orders,
+          data: payload,
         })
       } else {
         res.status(404).json({
