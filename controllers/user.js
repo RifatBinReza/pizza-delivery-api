@@ -20,7 +20,7 @@ exports.addUser = (req, res)=>{
       res.status(422).json({
         status: 'error',
         message: 'Invalid request data',
-        data: data
+        data: data,
       });
     } else {
       let user = await models.User.findOne({

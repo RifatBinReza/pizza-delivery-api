@@ -25,8 +25,5 @@ module.exports = (Sequelize, DataTypes) => {
       tableName: "user",
     }
   );
-  User.associate = (models)=> {
-    models.User.hasMany(models.Order, {targetKey: 'customer_id'})
-  };
   return User;
 };

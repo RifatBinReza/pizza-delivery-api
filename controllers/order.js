@@ -29,18 +29,26 @@ exports.addOrder = (req, res)=>{
       })
       if(user){
         // Save the order to database
-        let order = await models.Order.create({
-          type: data.type,
-          size: data.size,
-          quantity: data.quantity,
-          customer_id: data.ordered_by,
-          delivery_status: data.delivery_status,
-        })
-        res.status(200).json({
-          status: 'success',
-          message: 'Successfully saved data',
-          data: order.get({ plain:true })
-        })
+        try {
+          let order = await models.Order.create({
+            type: data.type,
+            size: data.size,
+            quantity: data.quantity,
+            customer_id: data.customer_id,
+            delivery_status: data.delivery_status,
+          })
+          res.status(200).json({
+            status: 'success',
+            message: 'Successfully saved data',
+            data: order.get({ plain:true })
+          })
+        } catch (error) {
+          res.status(500).json({
+            status: "error",
+            message: "Failed to save order",
+            data: data
+          });
+        }
       } else {
         res.status(404).json({
           status: "error",

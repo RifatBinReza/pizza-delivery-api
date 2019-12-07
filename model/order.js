@@ -33,7 +33,7 @@ module.exports = (Sequelize, DataTypes) => {
     }
   );
   Order.associate = (models)=> {
-    models.Order.belongsTo(models.User, {foreignKey: "customer_id"})
+    models.Order.hasOne(models.User, {foreignKey: "customer_id"})
   };
   return Order;
 };
