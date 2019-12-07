@@ -11,6 +11,7 @@ const errorHandler = require("errorhandler");
  * Require essentials like routes, models, controllers etc
  */
 const { sequelize, models } = require("./model");
+const apiRoutes = require("./routes/api");
 
 /**
  * Create Express server.
@@ -30,6 +31,11 @@ app.use(
     parameterLimit: 50000
   })
 );
+
+/**
+ * API Routes
+ */
+app.use("/api", apiRoutes);
 
 /**
  * Error Handler.

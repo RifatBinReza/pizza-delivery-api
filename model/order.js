@@ -15,7 +15,7 @@ module.exports = (Sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false
       },
-      ordered_by: {
+      customer_id: {
         type: DataTypes.INTEGER,
         allowNull: false
       },
@@ -33,7 +33,7 @@ module.exports = (Sequelize, DataTypes) => {
     }
   );
   Order.associate = (models)=> {
-    models.Order.belongsTo(models.User, {foreignKey: "ordered_by"})
+    models.Order.belongsTo(models.User, {foreignKey: "customer_id"})
   };
   return Order;
 };
