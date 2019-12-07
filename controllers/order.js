@@ -59,3 +59,41 @@ exports.addOrder = (req, res)=>{
     }
   })
 }
+/**
+ * function: getOrderById
+ * task: Get a specific order by id number from the database
+ */
+exports.getOrderById = async (req, res)=>{
+  let orderId = req.params.id;
+  if(orderId){
+    let order = await models.Order.findOne({
+      where: {id: orderId}
+    })
+    if(order){
+      let userData = await order.getUser()
+      // Only send required data for user
+      let user = {
+        first_name: userData.first_name,
+        last_name: userData.last_name,
+        address: userData.address,
+      }
+      res.status(200).json({
+        status: "success",
+        message: "Found the order",
+        data: {order, user},
+      });
+    } else {
+      res.status(404).json({
+        status: "error",
+        message: "Couldn'\t find the order",
+        data: null
+      });
+    }
+  } else {
+    res.status(422).json({
+      status: "error",
+      message: "Invalid request with no order id in parameter",
+      data: null
+    });
+  }
+}
