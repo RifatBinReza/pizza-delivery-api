@@ -13,7 +13,6 @@ exports.addOrder = (req, res)=>{
     size: Joi.string().valid('small', 'medium', 'large').required(),
     quantity: Joi.number().positive().required(),
     customer_id: Joi.number().required(),
-    delivery_status: Joi.string().valid('new', 'preparing', 'delivering', 'delivered').required(),
   })
   Joi.validate(data, schema, async (err, value)=>{
     if(err){
@@ -35,7 +34,7 @@ exports.addOrder = (req, res)=>{
             size: data.size,
             quantity: data.quantity,
             customer_id: data.customer_id,
-            delivery_status: data.delivery_status,
+            delivery_status: "new",
           })
           res.status(200).json({
             status: 'success',
@@ -206,5 +205,46 @@ exports.updateDeliveryStatusById = async (req, res)=>{
       message: "Invalid request with no order id in parameter",
       data: null
     });
+  }
+}
+
+exports.filterOrder = async (req, res)=>{
+  let queryDeliveryStatus = req.query.delivery_status;
+  let queryUserId = req.query.userId;
+
+  if(!queryDeliveryStatus && !queryUserId){
+    res.status(400).json({
+      status: "error",
+      message: "Query string doesn\'t have customer ID/delivery status",
+      data: null,
+    })
+  } else {
+    let where = {}
+    if(queryDeliveryStatus) where.delivery_status = queryDeliveryStatus
+    if(queryUserId) where.customer_id = queryUserId
+    try {
+      let orders = await models.Order.findAll({
+        where: where
+      })
+      if(orders.length>0){
+        res.status(200).json({
+          status: "success",
+          message: "Found orders",
+          data: orders,
+        })
+      } else {
+        res.status(404).json({
+          status: "error",
+          message: "No orders found",
+          data: null
+        });
+      }
+    } catch (error) {
+      res.status(500).json({
+        status: "error",
+        message: "Failed to get the orders",
+        data: null
+      });
+    }
   }
 }

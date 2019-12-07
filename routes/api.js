@@ -8,6 +8,7 @@ router.post("/order/add", orderController.addOrder);
 router.get("/order/:id", orderController.getOrderById);
 router.post("/order/:id/update", orderController.updateOrderById);
 router.post("/order/:id/status", orderController.updateDeliveryStatusById);
+router.get("/orders/filter", orderController.filterOrder);
 
 // User routes
 router.post("/user/add", userController.addUser);
