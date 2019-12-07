@@ -75,7 +75,9 @@ exports.getOrderById = async (req, res)=>{
         return res.status(200).json({
           status: "success",
           message: "Found the order status",
-          data: {delivery_status: order.delivery_status}
+          data: {
+            delivery_status: order.delivery_status
+          }
         })
       }
       let userData = await order.getUser()
@@ -95,6 +97,107 @@ exports.getOrderById = async (req, res)=>{
         status: "error",
         message: "Couldn'\t find the order",
         data: null
+      });
+    }
+  } else {
+    res.status(422).json({
+      status: "error",
+      message: "Invalid request with no order id in parameter",
+      data: null
+    });
+  }
+}
+/**
+ * function: updateOrderById
+ * task: Finds an order by given ID, updates the order by given values
+ */
+exports.updateOrderById = (req, res)=>{
+  const data = req.body;
+  const orderId = req.params.id
+  // Validate our database schema with Joi
+  const schema = Joi.object().keys({
+    type: Joi.string().valid('margarita', 'marinara', 'salami'),
+    size: Joi.string().valid('small', 'medium', 'large'),
+    quantity: Joi.number().positive(),
+  })
+  Joi.validate(data, schema, async (err, value)=>{
+    if(err){
+      res.status(422).json({
+        status: "error",
+        message: "Invalid request data",
+        data: data
+      });
+    } else{
+      try {
+        let updatedOrder = await models.Order.update(
+          {
+            type: data.type,
+            size: data.size,
+            quantity: data.quantity,
+          },
+          {
+            where: {
+              id: orderId
+            },
+          }
+        )
+        res.status(200).json({
+          status: "success",
+          message: "Successfully updated the order",
+          data: null
+        })
+      } catch (error) {
+        res.status(500).json({
+          status: "error",
+          message: "Failed to update the order",
+          data: data
+        });
+      }
+    }
+  })
+}
+
+/**
+ * function: updateDeliveryStatusById
+ * task: Update delivery status of a given order. Reject if the order is already delivered
+ */
+
+exports.updateDeliveryStatusById = async (req, res)=>{
+  const orderId = req.params.id;
+  const data = req.body;
+  if(orderId){
+    try {
+      let order = await models.Order.findOne({
+        where: {
+          id: orderId
+        }
+      })
+      if(order.delivery_status!=='delivered'){
+        await order.update({
+          delivery_status: data.delivery_status},
+          {
+            where: {
+              id: orderId
+            }
+          }
+        )
+        res.status(200).json({
+          status: "success",
+          message: "Successfully updated delivery status",
+          data: null
+        })
+      } else {
+        res.status(500).json({
+          status: "error",
+          message: "Failed to update the delivery status. The order is already delivered",
+          data: data
+        });
+      }
+    } catch (error) {
+      res.status(500).json({
+        status: "error",
+        message: "Failed to update the delivery status",
+        data: data
       });
     }
   } else {
