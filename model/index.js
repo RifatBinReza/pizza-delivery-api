@@ -19,7 +19,8 @@ const sequelize = new Sequelize(
  * Get all the models for exporting
  */
 const models = {
-
+  User: require("./user")(sequelize, Sequelize),
+  Order: require("./order")(sequelize, Sequelize),
 };
 
 Object.keys(models).forEach(key => {
