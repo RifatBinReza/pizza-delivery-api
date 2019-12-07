@@ -1,0 +1,24 @@
+version: "3.7"
+services: 
+  db:
+    image: postgres
+    environment: 
+      POSTGRES_DB: pizzadb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    container_name: db
+  web:
+    restart: always
+    environment: 
+      DATABASE: pizzadb
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: postgres
+      DATABASE_HOST: db
+    build: .
+    depends_on: 
+      - db
+    ports: 
+      - "3000:3000"
+    command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; npm start'
