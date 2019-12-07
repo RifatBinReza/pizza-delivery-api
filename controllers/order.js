@@ -63,45 +63,37 @@ exports.addOrder = (req, res)=>{
  * task: Get a specific order by id number from the database
  */
 exports.getOrderById = async (req, res)=>{
-  let orderId = req.params.id;
+  let orderId = req.params.id;  
   let onlyStatus = req.query.onlyStatus
-  if(orderId){
-    let order = await models.Order.findOne({
-      where: {id: orderId}
-    })
-    if(order){
-      if(onlyStatus){
-        return res.status(200).json({
-          status: "success",
-          message: "Found the order status",
-          data: {
-            delivery_status: order.delivery_status
-          }
-        })
-      }
-      let userData = await order.getUser()
-      // Only send required data for user
-      let customer = {
-        first_name: userData.first_name,
-        last_name: userData.last_name,
-        address: userData.address,
-      }
-      res.status(200).json({
+  let order = await models.Order.findOne({
+    where: {id: orderId}
+  })
+  if(order){
+    if(onlyStatus){
+      return res.status(200).json({
         status: "success",
-        message: "Found the order",
-        data: {order, customer},
-      });
-    } else {
-      res.status(404).json({
-        status: "error",
-        message: "Couldn'\t find the order",
-        data: null
-      });
+        message: "Found the order status",
+        data: {
+          delivery_status: order.delivery_status
+        }
+      })
     }
+    let userData = await order.getUser()
+    // Only send required data for user
+    let customer = {
+      first_name: userData.first_name,
+      last_name: userData.last_name,
+      address: userData.address,
+    }
+    res.status(200).json({
+      status: "success",
+      message: "Found the order",
+      data: {order, customer},
+    });
   } else {
-    res.status(422).json({
+    res.status(404).json({
       status: "error",
-      message: "Invalid request with no order id in parameter",
+      message: "Couldn'\t find the order",
       data: null
     });
   }
@@ -164,50 +156,46 @@ exports.updateOrderById = (req, res)=>{
 exports.updateDeliveryStatusById = async (req, res)=>{
   const orderId = req.params.id;
   const data = req.body;
-  if(orderId){
-    try {
-      let order = await models.Order.findOne({
-        where: {
-          id: orderId
-        }
-      })
-      if(order.delivery_status!=='delivered'){
-        await order.update({
-          delivery_status: data.delivery_status},
-          {
-            where: {
-              id: orderId
-            }
-          }
-        )
-        res.status(200).json({
-          status: "success",
-          message: "Successfully updated delivery status",
-          data: null
-        })
-      } else {
-        res.status(500).json({
-          status: "error",
-          message: "Failed to update the delivery status. The order is already delivered",
-          data: data
-        });
+  try {
+    let order = await models.Order.findOne({
+      where: {
+        id: orderId
       }
-    } catch (error) {
+    })
+    if(order.delivery_status!=='delivered'){
+      await order.update({
+        delivery_status: data.delivery_status},
+        {
+          where: {
+            id: orderId
+          }
+        }
+      )
+      res.status(200).json({
+        status: "success",
+        message: "Successfully updated delivery status",
+        data: null
+      })
+    } else {
       res.status(500).json({
         status: "error",
-        message: "Failed to update the delivery status",
+        message: "Failed to update the delivery status. The order is already delivered",
         data: data
       });
     }
-  } else {
-    res.status(422).json({
+  } catch (error) {
+    res.status(500).json({
       status: "error",
-      message: "Invalid request with no order id in parameter",
-      data: null
+      message: "Failed to update the delivery status",
+      data: data
     });
   }
 }
 
+/**
+ * function: filerOrder
+ * task: Filter order by delivery status or user id or both and return value
+ */
 exports.filterOrder = async (req, res)=>{
   let queryDeliveryStatus = req.query.delivery_status;
   let queryUserId = req.query.userId;
@@ -246,5 +234,39 @@ exports.filterOrder = async (req, res)=>{
         data: null
       });
     }
+  }
+}
+
+/**
+ * function: removeOrderById
+ * task: Remove a specific order by it's id
+ */
+exports.removeOrderById = async (req, res)=>{
+  const orderId = req.params.id;
+  try {
+    let deletedOrder = await models.Order.destroy({
+      where: {
+        id: orderId
+      }
+    })
+    if(deletedOrder === 1){
+      res.status(200).json({
+        status: "success",
+        message: "Successfully removed the order",
+        data: null
+      });
+    } else {
+      res.status(200).json({
+        status: "error",
+        message: "Order doesn'\t exist",
+        data: null
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Failed to remove the orders",
+      data: null
+    });
   }
 }
