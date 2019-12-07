@@ -65,14 +65,22 @@ exports.addOrder = (req, res)=>{
  */
 exports.getOrderById = async (req, res)=>{
   let orderId = req.params.id;
+  let onlyStatus = req.query.onlyStatus
   if(orderId){
     let order = await models.Order.findOne({
       where: {id: orderId}
     })
     if(order){
+      if(onlyStatus){
+        return res.status(200).json({
+          status: "success",
+          message: "Found the order status",
+          data: {delivery_status: order.delivery_status}
+        })
+      }
       let userData = await order.getUser()
       // Only send required data for user
-      let user = {
+      let customer = {
         first_name: userData.first_name,
         last_name: userData.last_name,
         address: userData.address,
@@ -80,7 +88,7 @@ exports.getOrderById = async (req, res)=>{
       res.status(200).json({
         status: "success",
         message: "Found the order",
-        data: {order, user},
+        data: {order, customer},
       });
     } else {
       res.status(404).json({
