@@ -1,7 +1,5 @@
 const {models} = require('../model');
 const Joi = require('joi');
-const moment = require("moment");
-const { Op } = require("sequelize");
 
 /**
  * function: addOrder
